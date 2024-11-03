@@ -22,11 +22,23 @@ class AppwriteFakerTool
         $helper = new QuestionHelper();
         $question = new ChoiceQuestion(
             'Which services do you want to generate data for?',
-            ['Auth', 'Databases', 'Storage', 'Functions']
+            ['All', 'Auth', 'Databases', 'Storage', 'Functions']
         );
         $question->setMultiselect(true);
         $answer = $helper->ask($input, $output, $question);
         $output->writeln("You selected: " . implode(', ', $answer));
+
+        if (in_array('All', $answer)) {
+            $auth = new Auth();
+            $storage = new Storage();
+            $databases = new Databases();
+            $functions = new Functions();
+
+            $auth->run($input, $output);
+            $databases->run($input, $output);
+            $storage->run($input, $output);
+            $functions->run($input, $output);
+        }
 
         if (in_array('Auth', $answer)) {
             $auth = new Auth();

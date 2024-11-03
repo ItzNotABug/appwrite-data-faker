@@ -4,6 +4,7 @@ require 'vendor/autoload.php';
 require 'src/client.php';
 require 'src/tools/faker/AppwriteFakerTool.php';
 
+use Dotenv\Dotenv;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,9 +14,10 @@ use Appwrite\Faker\Client as FakerClient;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-$GLOBALS['APPWRITE_ENDPOINT'];
-$GLOBALS['APPWRITE_API_KEY'];
-$GLOBALS['APPWRITE_PROJECT_ID'];
+Dotenv::createImmutable('./')->load();
+foreach ($_ENV as $key => $value) {
+    $GLOBALS[$key] = $value;
+}
 
 class AppInitializer extends Application
 {
@@ -62,7 +64,7 @@ EOF;
 
         switch ($tool) {
             case 'Generate Fake Data':
-                $output->writeln('Generating fake data...');
+                $this->addFakeAppwriteData($input, $output);
                 break;
             case 'Initialise Appwrite Project':
                 $this->initializeAppwrite($input, $output);
@@ -70,6 +72,12 @@ EOF;
             default:
                 $output->writeln('Invalid option selected.');
         }
+    }
+
+    private function addFakeAppwriteData(InputInterface $input, OutputInterface $output)
+    {
+        $fakerToolInstance = new AppwriteFakerTool();
+        $fakerToolInstance->run($input, $output);
     }
 
     private function initializeAppwrite(InputInterface $input, OutputInterface $output)
